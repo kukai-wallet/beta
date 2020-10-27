@@ -13155,7 +13155,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](6, "h1");
 
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](7, "DirectAuth*");
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](7, "DirectAuth");
 
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
 
@@ -13272,7 +13272,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         _classCallCheck(this, Constants);
 
         // Select Testnet or Mainnet
-        this.NET = this.carthagenet();
+        this.NET = this.mainnet();
       }
 
       _createClass(Constants, [{

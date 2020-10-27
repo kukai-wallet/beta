@@ -6598,7 +6598,7 @@ TorusComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineCom
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](4, "div", 3);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](5, "div", 4);
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](6, "h1");
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](7, "DirectAuth*");
+        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](7, "DirectAuth");
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](8, "p");
         _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](9, "Your Tezos wallet in one-click. ");
@@ -6654,7 +6654,7 @@ __webpack_require__.r(__webpack_exports__);
 class Constants {
     constructor() {
         // Select Testnet or Mainnet
-        this.NET = this.carthagenet();
+        this.NET = this.mainnet();
     }
     mainnet() {
         return {
