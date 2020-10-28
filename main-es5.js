@@ -20722,14 +20722,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         };
 
         if (this.CONSTANTS.NET.NETWORK === 'mainnet') {
-          console.log('Mainnet');
           this.verifierMap = this.verifierMaps.mainnet;
           this.proxy = {
             address: '0x638646503746d5456209e33a2ff5e3226d698bea',
             network: 'mainnet'
           };
         } else if (this.CONSTANTS.NET.NETWORK) {
-          console.log('Testnet');
           this.verifierMap = this.verifierMaps.testnet;
           this.proxy = {
             address: '0x4023d2a0D330bF11426B12C6144Cfb96B7fa6183',
@@ -20737,8 +20735,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         }
 
-        console.log('proxy', this.proxy);
-        console.log();
         this.verifierMapKeys = Object.keys(this.verifierMap);
       }
 
