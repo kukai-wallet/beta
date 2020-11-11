@@ -9617,10 +9617,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class IndexerService {
-    constructor(injector) {
-        this.injector = injector;
+    constructor() {
         const constants = new _constants__WEBPACK_IMPORTED_MODULE_4__["Constants"]();
-        this.selectedIndexerService = this.injector.get(constants.NET.CSI ? _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"] : _tzkt_tzkt_service__WEBPACK_IMPORTED_MODULE_3__["TzktService"]);
+        this.selectedIndexerService = constants.NET.CSI ? new _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"] : new _tzkt_tzkt_service__WEBPACK_IMPORTED_MODULE_3__["TzktService"];
     }
     getContractAddresses(address) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
@@ -9638,14 +9637,14 @@ class IndexerService {
         });
     }
 }
-IndexerService.ɵfac = function IndexerService_Factory(t) { return new (t || IndexerService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"])); };
+IndexerService.ɵfac = function IndexerService_Factory(t) { return new (t || IndexerService)(); };
 IndexerService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({ token: IndexerService, factory: IndexerService.ɵfac, providedIn: 'root' });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](IndexerService, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"],
         args: [{
                 providedIn: 'root'
             }]
-    }], function () { return [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"] }]; }, null); })();
+    }], function () { return []; }, null); })();
 
 
 /***/ }),

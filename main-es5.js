@@ -17785,12 +17785,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     "./src/app/constants.ts");
 
     var IndexerService = /*#__PURE__*/function () {
-      function IndexerService(injector) {
+      function IndexerService() {
         _classCallCheck(this, IndexerService);
 
-        this.injector = injector;
         var constants = new _constants__WEBPACK_IMPORTED_MODULE_4__["Constants"]();
-        this.selectedIndexerService = this.injector.get(constants.NET.CSI ? _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"] : _tzkt_tzkt_service__WEBPACK_IMPORTED_MODULE_3__["TzktService"]);
+        this.selectedIndexerService = constants.NET.CSI ? new _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"]() : new _tzkt_tzkt_service__WEBPACK_IMPORTED_MODULE_3__["TzktService"]();
       }
 
       _createClass(IndexerService, [{
@@ -17853,7 +17852,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }();
 
     IndexerService.ɵfac = function IndexerService_Factory(t) {
-      return new (t || IndexerService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"]));
+      return new (t || IndexerService)();
     };
 
     IndexerService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({
@@ -17870,9 +17869,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           providedIn: 'root'
         }]
       }], function () {
-        return [{
-          type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"]
-        }];
+        return [];
       }, null);
     })();
     /***/
