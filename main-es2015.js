@@ -1118,8 +1118,8 @@ class AccountViewComponent {
         this.messageService.add(account.address + ' ' + copyToClipboard, 5);
     }
     explorerURL(hash) {
-        const baseURL = this.CONSTANTS.NET.NETWORK === 'mainnet' ? 'https://tzkt.io/' : 'https://carthage.tzkt.io/';
-        return baseURL + hash;
+        const baseURL = this.CONSTANTS.NET.BLOCK_EXPLORER_URL;
+        return `${baseURL}/${hash}`;
     }
 }
 AccountViewComponent.ɵfac = function AccountViewComponent_Factory(t) { return new (t || AccountViewComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_1__["ActivatedRoute"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_services_wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__["WalletService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_ngx_translate_core__WEBPACK_IMPORTED_MODULE_4__["TranslateService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_services_message_message_service__WEBPACK_IMPORTED_MODULE_5__["MessageService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_pipes_time_ago_pipe__WEBPACK_IMPORTED_MODULE_3__["TimeAgoPipe"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_1__["Router"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_services_coordinator_coordinator_service__WEBPACK_IMPORTED_MODULE_8__["CoordinatorService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_services_lookup_lookup_service__WEBPACK_IMPORTED_MODULE_10__["LookupService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_services_activity_activity_service__WEBPACK_IMPORTED_MODULE_11__["ActivityService"])); };
@@ -2499,10 +2499,10 @@ class DelegateComponent {
         this.messageService = messageService;
         this.modalOpen = false;
         this.activeView = 0;
-        this.recommendedFee = 0.0013;
+        this.recommendedFee = 0.0004;
         this.revealFee = 0;
-        this.pkhFee = 0.0013;
-        this.ktFee = 0.003;
+        this.pkhFee = 0.0004;
+        this.ktFee = 0.00065;
         this.CONSTANTS = new _constants__WEBPACK_IMPORTED_MODULE_9__["Constants"]();
         this.formInvalid = '';
         this.ledgerError = '';
@@ -2718,7 +2718,7 @@ class DelegateComponent {
         this.operationService.isRevealed(this.activeAccount.pkh)
             .subscribe((revealed) => {
             if (!revealed) {
-                this.revealFee = 0.0013;
+                this.revealFee = 0.0004;
             }
             else {
                 this.revealFee = 0;
@@ -5425,6 +5425,7 @@ class SendComponent {
         this.messageService = messageService;
         this.torusService = torusService;
         this.lookupService = lookupService;
+        this.costPerByte = this.estimateService.costPerByte;
         // torus
         this.torusVerifier = '';
         this.torusPendingLookup = false;
@@ -5625,7 +5626,7 @@ class SendComponent {
             let accountBalance = big_js__WEBPACK_IMPORTED_MODULE_9___default()(account.balanceXTZ).div(1000000);
             accountBalance = accountBalance.minus(this.fee && Number(this.fee) ? Number(this.fee) : this.defaultTransactionParams.fee);
             if (!this.isMultipleDestinations) {
-                accountBalance = accountBalance.minus(this.storage && Number(this.storage) ? Number(this.storage) / 1000 : this.defaultTransactionParams.burn);
+                accountBalance = accountBalance.minus(this.storage && Number(this.storage) ? Number(big_js__WEBPACK_IMPORTED_MODULE_9___default()(this.storage).times(this.costPerByte).div('1000000')) : this.defaultTransactionParams.burn);
             }
             else {
                 accountBalance = accountBalance.minus(this.defaultTransactionParams.burn);
@@ -5784,7 +5785,7 @@ class SendComponent {
         this.updateDefaultValues();
     }
     burnAmount() {
-        const burn = this.storage ? Number(this.storage) / 1000 : this.defaultTransactionParams.storage / 1000;
+        const burn = this.storage ? Number(big_js__WEBPACK_IMPORTED_MODULE_9___default()(this.storage).times(this.costPerByte).div(1000000)) : this.defaultTransactionParams.burn;
         if (burn) {
             return burn + ' tez';
         }
@@ -6085,7 +6086,7 @@ class SendComponent {
     }
     getTotalBurn() {
         if (this.storage !== '' && Number(this.storage)) {
-            return Number(big_js__WEBPACK_IMPORTED_MODULE_9___default()(this.storage).mul(this.transactions.length).div('1000').toString());
+            return Number(big_js__WEBPACK_IMPORTED_MODULE_9___default()(this.storage).mul(this.transactions.length).div(this.costPerByte).toString());
         }
         return Number(this.defaultTransactionParams.burn);
     }
@@ -6654,7 +6655,7 @@ __webpack_require__.r(__webpack_exports__);
 class Constants {
     constructor() {
         // Select Testnet or Mainnet
-        this.NET = this.mainnet();
+        this.NET = this.delphinet();
     }
     mainnet() {
         return {
@@ -6678,6 +6679,14 @@ class Constants {
             },
             NODE_URL: 'https://testnet-tezos.giganode.io',
             BLOCK_EXPLORER_URL: 'https://carthage.tzkt.io'
+        };
+    }
+    delphinet() {
+        return {
+            NAME: 'Testnet / Delphi',
+            NETWORK: 'delphinet',
+            NODE_URL: 'https://delphinet-tezos.giganode.io/',
+            BLOCK_EXPLORER_URL: 'https://delphi.tzkt.io'
         };
     }
 }
@@ -8142,11 +8151,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ActivityService", function() { return ActivityService; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
 /* harmony import */ var _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../wallet/wallet.service */ "./src/app/services/wallet/wallet.service.ts");
-/* harmony import */ var _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../conseil/conseil.service */ "./src/app/services/conseil/conseil.service.ts");
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
-/* harmony import */ var _message_message_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../message/message.service */ "./src/app/services/message/message.service.ts");
-/* harmony import */ var _lookup_lookup_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../lookup/lookup.service */ "./src/app/services/lookup/lookup.service.ts");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
+/* harmony import */ var _message_message_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../message/message.service */ "./src/app/services/message/message.service.ts");
+/* harmony import */ var _lookup_lookup_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../lookup/lookup.service */ "./src/app/services/lookup/lookup.service.ts");
+/* harmony import */ var _indexer_indexer_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../indexer/indexer.service */ "./src/app/services/indexer/indexer.service.ts");
 
 
 
@@ -8160,18 +8169,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class ActivityService {
-    constructor(walletService, conseilService, messageService, lookupService) {
+    constructor(walletService, messageService, lookupService, indexerService) {
         this.walletService = walletService;
-        this.conseilService = conseilService;
         this.messageService = messageService;
         this.lookupService = lookupService;
+        this.indexerService = indexerService;
         this.maxTransactions = 10;
     }
     updateTransactions(pkh) {
         try {
             const account = this.walletService.wallet.getAccount(pkh);
-            return this.getTransactonsCounter(account).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((ans) => {
-                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(ans);
+            return this.getTransactonsCounter(account).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["flatMap"])((ans) => {
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["of"])(ans);
             }));
         }
         catch (e) {
@@ -8179,19 +8188,19 @@ class ActivityService {
         }
     }
     getTransactonsCounter(account) {
-        return this.conseilService.accountInfo(account.address).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((counter) => {
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["from"])(this.indexerService.accountInfo(account.address)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["flatMap"])((counter) => {
             if (account.activitiesCounter !== counter) {
                 return this.getAllTransactions(account, counter);
             }
             else {
-                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])({
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["of"])({
                     upToDate: true,
                 });
             }
         }));
     }
     getAllTransactions(account, counter) {
-        return this.conseilService.getOperations(account.address).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((ans) => {
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["from"])(this.indexerService.getOperations(account.address)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["flatMap"])((ans) => {
             if (Array.isArray(ans)) {
                 const oldActivities = account.activities;
                 account.activities = ans;
@@ -8214,7 +8223,7 @@ class ActivityService {
                 console.log('#');
                 console.log(ans);
             }
-            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])({
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["of"])({
                 upToDate: false
             });
         }));
@@ -8278,11 +8287,11 @@ class ActivityService {
         return counterParty;
     }
 }
-ActivityService.ɵfac = function ActivityService_Factory(t) { return new (t || ActivityService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_wallet_wallet_service__WEBPACK_IMPORTED_MODULE_1__["WalletService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_message_message_service__WEBPACK_IMPORTED_MODULE_5__["MessageService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_lookup_lookup_service__WEBPACK_IMPORTED_MODULE_6__["LookupService"])); };
+ActivityService.ɵfac = function ActivityService_Factory(t) { return new (t || ActivityService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_wallet_wallet_service__WEBPACK_IMPORTED_MODULE_1__["WalletService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_message_message_service__WEBPACK_IMPORTED_MODULE_4__["MessageService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_lookup_lookup_service__WEBPACK_IMPORTED_MODULE_5__["LookupService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_indexer_indexer_service__WEBPACK_IMPORTED_MODULE_6__["IndexerService"])); };
 ActivityService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: ActivityService, factory: ActivityService.ɵfac });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](ActivityService, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"]
-    }], function () { return [{ type: _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_1__["WalletService"] }, { type: _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"] }, { type: _message_message_service__WEBPACK_IMPORTED_MODULE_5__["MessageService"] }, { type: _lookup_lookup_service__WEBPACK_IMPORTED_MODULE_6__["LookupService"] }]; }, null); })();
+    }], function () { return [{ type: _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_1__["WalletService"] }, { type: _message_message_service__WEBPACK_IMPORTED_MODULE_4__["MessageService"] }, { type: _lookup_lookup_service__WEBPACK_IMPORTED_MODULE_5__["LookupService"] }, { type: _indexer_indexer_service__WEBPACK_IMPORTED_MODULE_6__["IndexerService"] }]; }, null); })();
 
 
 /***/ }),
@@ -8367,135 +8376,6 @@ BalanceService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineIn
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](BalanceService, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"]
     }], function () { return [{ type: _ngx_translate_core__WEBPACK_IMPORTED_MODULE_1__["TranslateService"] }, { type: _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__["WalletService"] }, { type: _message_message_service__WEBPACK_IMPORTED_MODULE_3__["MessageService"] }, { type: _tzrate_tzrate_service__WEBPACK_IMPORTED_MODULE_4__["TzrateService"] }, { type: _operation_operation_service__WEBPACK_IMPORTED_MODULE_5__["OperationService"] }]; }, null); })();
-
-
-/***/ }),
-
-/***/ "./src/app/services/conseil/conseil.service.ts":
-/*!*****************************************************!*\
-  !*** ./src/app/services/conseil/conseil.service.ts ***!
-  \*****************************************************/
-/*! exports provided: ConseilService */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConseilService", function() { return ConseilService; });
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../constants */ "./src/app/constants.ts");
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
-/* harmony import */ var conseiljs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! conseiljs */ "./node_modules/conseiljs/dist/index-web.js");
-/* harmony import */ var conseiljs__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(conseiljs__WEBPACK_IMPORTED_MODULE_5__);
-
-
-
-
-
-
-
-class ConseilService {
-    constructor() {
-        this.CONSTANTS = new _constants__WEBPACK_IMPORTED_MODULE_2__["Constants"]();
-        this.conseilServer = this.CONSTANTS.NET.CSI;
-        this.network = this.CONSTANTS.NET.NETWORK;
-        this.platform = 'tezos';
-    }
-    getContractAddresses(pkh) {
-        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            const entity = 'operations';
-            let query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
-            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(query, 'originated_contracts');
-            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'kind', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['origination'], false);
-            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'source', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [pkh], false);
-            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'status', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['applied'], false);
-            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addOrdering(query, 'block_level', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilSortDirection"].DESC);
-            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(query, 100);
-            const results = yield conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, query);
-            const addresses = [];
-            for (const result of results) {
-                addresses.push(result.originated_contracts);
-            }
-            return addresses;
-        });
-    }
-    accountInfo(address) {
-        const entity = 'accounts';
-        let query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
-        query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(query, 'block_level');
-        query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'account_id', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [address], false);
-        query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(query, 1);
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, query)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((result) => {
-            if (result[0]) {
-                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(result[0].block_level);
-            }
-            else {
-                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(0);
-            }
-        }));
-    }
-    getOperations(pkh) {
-        const entity = 'operations';
-        let sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
-        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(sendQuery, 'kind', 'block_hash', 'operation_group_hash', 'timestamp', 'originated_contracts', 'source', 'destination', 'amount', 'delegate');
-        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(sendQuery, 'kind', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].IN, ['transaction', 'origination', 'delegation'], false);
-        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(sendQuery, 'source', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [pkh], false);
-        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(sendQuery, 'status', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['applied'], false);
-        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addOrdering(sendQuery, 'block_level', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilSortDirection"].DESC);
-        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(sendQuery, 10);
-        let receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
-        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(receiveQuery, 'kind', 'block_hash', 'operation_group_hash', 'timestamp', 'source', 'destination', 'amount');
-        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(receiveQuery, 'kind', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].IN, ['transaction', 'origination'], false);
-        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(receiveQuery, 'destination', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [pkh], false);
-        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(receiveQuery, 'status', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['applied'], false);
-        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addOrdering(receiveQuery, 'block_level', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilSortDirection"].DESC);
-        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(receiveQuery, 10);
-        return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, sendQuery)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((sendResult) => {
-            sendResult = this.formatTx(sendResult);
-            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, receiveQuery)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((receiveResult) => {
-                receiveResult = this.formatTx(receiveResult);
-                const transactions = sendResult.concat(receiveResult).sort((a, b) => b['timestamp'] - a['timestamp']);
-                console.log('ADDRESS GET ' + pkh);
-                console.log(transactions);
-                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(transactions);
-            }));
-        }));
-    }
-    formatTx(input) {
-        const output = [];
-        for (const tx of input) {
-            if (tx.kind !== 'transaction' || tx.amount > 0) {
-                let destination = tx.destination;
-                if (tx.kind === 'origination') {
-                    destination = tx.originated_contracts;
-                }
-                else if (tx.kind === 'delegation') {
-                    destination = tx.delegate;
-                }
-                output.push({
-                    type: tx.kind,
-                    block: tx.block_hash,
-                    status: 1,
-                    amount: tx.amount,
-                    source: tx.source,
-                    destination: destination,
-                    hash: tx.operation_group_hash,
-                    timestamp: tx.timestamp
-                });
-            }
-        }
-        return output;
-    }
-}
-ConseilService.ɵfac = function ConseilService_Factory(t) { return new (t || ConseilService)(); };
-ConseilService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({ token: ConseilService, factory: ConseilService.ɵfac, providedIn: 'root' });
-/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](ConseilService, [{
-        type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"],
-        args: [{
-                providedIn: 'root'
-            }]
-    }], function () { return []; }, null); })();
 
 
 /***/ }),
@@ -9055,15 +8935,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const httpOptions = { headers: { 'Content-Type': 'application/json' } };
-const hardGasLimit = 800000;
+const hardGasLimit = 1040000;
 const hardStorageLimit = 60000;
 class EstimateService {
     constructor(http, operationService) {
         this.http = http;
         this.operationService = operationService;
+        this.costPerByte = '250';
+        this.revealGasLimit = 1000;
         this.queue = [];
         this.CONSTANTS = this.operationService.CONSTANTS;
-        this.revealGasLimit = 10000;
         this.nodeURL = this.CONSTANTS.NET.NODE_URL;
     }
     init(hash, chainId, counter, manager, pk, pkh) {
@@ -9216,7 +9097,7 @@ class EstimateService {
                 }
             }
         }
-        const storageUsage = Math.round(burn / 1000);
+        const storageUsage = Math.round(burn / Number(this.costPerByte));
         if (gasUsage < 0 || gasUsage > hardGasLimit || storageUsage < 0 || storageUsage > hardStorageLimit) {
             throw new Error('InvalidUsageCalculation');
         }
@@ -9261,7 +9142,7 @@ class EstimateService {
         for (const data of limits) {
             totalStorageLimit += data.storageLimit;
         }
-        return totalStorageLimit * 0.001;
+        return Number(big_js__WEBPACK_IMPORTED_MODULE_6___default()(totalStorageLimit).times(this.costPerByte).div('1000000'));
     }
     simulate(op) {
         op.signature = 'edsigtXomBKi5CTRf5cjATJWSyaRvhfYNHqSUGrn4SdbYRcGwQrUGjzEfQDTuqHhuA8b2d8NarZjz8TRf65WkpQmo423BtomS8Q';
@@ -9369,12 +9250,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
 /* harmony import */ var _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../wallet/wallet.service */ "./src/app/services/wallet/wallet.service.ts");
 /* harmony import */ var _coordinator_coordinator_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../coordinator/coordinator.service */ "./src/app/services/coordinator/coordinator.service.ts");
-/* harmony import */ var _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../conseil/conseil.service */ "./src/app/services/conseil/conseil.service.ts");
-/* harmony import */ var _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../wallet/wallet */ "./src/app/services/wallet/wallet.ts");
-/* harmony import */ var _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @tezos-core-tools/crypto-utils */ "./node_modules/@tezos-core-tools/crypto-utils/dist/main.js");
-/* harmony import */ var _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _encryption_encryption_service__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../encryption/encryption.service */ "./src/app/services/encryption/encryption.service.ts");
-/* harmony import */ var _torus_torus_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../torus/torus.service */ "./src/app/services/torus/torus.service.ts");
+/* harmony import */ var _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../wallet/wallet */ "./src/app/services/wallet/wallet.ts");
+/* harmony import */ var _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @tezos-core-tools/crypto-utils */ "./node_modules/@tezos-core-tools/crypto-utils/dist/main.js");
+/* harmony import */ var _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _encryption_encryption_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../encryption/encryption.service */ "./src/app/services/encryption/encryption.service.ts");
+/* harmony import */ var _torus_torus_service__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../torus/torus.service */ "./src/app/services/torus/torus.service.ts");
+/* harmony import */ var _indexer_indexer_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../indexer/indexer.service */ "./src/app/services/indexer/indexer.service.ts");
 
 
 
@@ -9391,10 +9272,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class ImportService {
-    constructor(walletService, coordinatorService, conseilService, encryptionService, torusService) {
+    constructor(walletService, coordinatorService, indexerService, encryptionService, torusService) {
         this.walletService = walletService;
         this.coordinatorService = coordinatorService;
-        this.conseilService = conseilService;
+        this.indexerService = indexerService;
         this.encryptionService = encryptionService;
         this.torusService = torusService;
     }
@@ -9425,7 +9306,7 @@ class ImportService {
                     if (walletData.version === 1) {
                         console.log('v1');
                         seed = yield this.encryptionService.decrypt(walletData.encryptedSeed, pwd, walletData.pkh.slice(3, 19), 1);
-                        if (_tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6__["utils"].seedToKeyPair(seed).pkh !== walletData.pkh) {
+                        if (_tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5__["utils"].seedToKeyPair(seed).pkh !== walletData.pkh) {
                             seed = '';
                         }
                     }
@@ -9456,17 +9337,17 @@ class ImportService {
             this.coordinatorService.stopAll();
             if (data.walletType === 4 && data.version === 3) {
                 // HD
-                this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["HdWallet"](data.iv, data.encryptedSeed, data.encryptedEntropy);
+                this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["HdWallet"](data.iv, data.encryptedSeed, data.encryptedEntropy);
             }
             else if (data.walletType === 0) {
                 if (data.version === 3) {
-                    this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["LegacyWalletV3"](data.iv, data.encryptedSeed, data.encryptedEntropy);
+                    this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["LegacyWalletV3"](data.iv, data.encryptedSeed, data.encryptedEntropy);
                 }
                 else if (data.version === 2) {
-                    this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["LegacyWalletV2"](data.iv, data.encryptedSeed);
+                    this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["LegacyWalletV2"](data.iv, data.encryptedSeed);
                 }
                 else if (data.version === 1) {
-                    this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["LegacyWalletV1"](data.pkh.slice(3, 19), data.encryptedSeed);
+                    this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["LegacyWalletV1"](data.pkh.slice(3, 19), data.encryptedSeed);
                 }
                 else {
                     throw new Error('Unsupported wallet file');
@@ -9477,23 +9358,22 @@ class ImportService {
             }
             let keys;
             if (seed.length === 32) {
-                keys = _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6__["utils"].seedToKeyPair(seed);
+                keys = _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5__["utils"].seedToKeyPair(seed);
             }
             else if (seed.length === 64) {
-                keys = _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6__["hd"].keyPairFromAccountIndex(seed, 0);
+                keys = _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5__["hd"].keyPairFromAccountIndex(seed, 0);
             }
             else {
                 throw new Error('Invalid seed length');
             }
             this.walletService.initStorage();
-            if (this.walletService.wallet instanceof _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["HdWallet"]) {
+            if (this.walletService.wallet instanceof _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["HdWallet"]) {
                 let index = 0;
                 let counter = 1;
                 while (counter) {
-                    keys = _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_6__["hd"].keyPairFromAccountIndex(seed, index);
-                    counter = yield this.conseilService
-                        .accountInfo(keys.pkh)
-                        .toPromise();
+                    keys = _tezos_core_tools_crypto_utils__WEBPACK_IMPORTED_MODULE_5__["hd"].keyPairFromAccountIndex(seed, index);
+                    counter = yield this.indexerService
+                        .accountInfo(keys.pkh);
                     if (counter || index === 0) {
                         this.walletService.addImplicitAccount(keys.pk, index++);
                         yield this.findContracts(keys.pkh);
@@ -9503,7 +9383,7 @@ class ImportService {
             }
             else {
                 this.walletService.addImplicitAccount(keys.pk);
-                yield this.findContracts(keys.pkh, true);
+                yield this.findContracts(keys.pkh);
             }
             return true;
         });
@@ -9523,7 +9403,7 @@ class ImportService {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             try {
                 this.walletService.initStorage();
-                this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["LedgerWallet"]();
+                this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["LedgerWallet"]();
                 this.walletService.addImplicitAccount(pk, derivationPath);
                 yield this.findContracts(this.walletService.wallet.implicitAccounts[0].pkh);
                 return true;
@@ -9539,7 +9419,7 @@ class ImportService {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             try {
                 this.walletService.initStorage();
-                this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["TorusWallet"](verifierDetails.verifier, verifierDetails.id, verifierDetails.name);
+                this.walletService.wallet = new _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["TorusWallet"](verifierDetails.verifier, verifierDetails.id, verifierDetails.name);
                 if (verifierDetails.verifier === 'twitter') {
                     this.updateTwitterName(verifierDetails.id);
                 }
@@ -9557,32 +9437,315 @@ class ImportService {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
             const twitterId = verifierId.split('|')[1];
             const { username } = yield this.torusService.twitterLookup(undefined, twitterId);
-            if (username && this.walletService.wallet instanceof _wallet_wallet__WEBPACK_IMPORTED_MODULE_5__["TorusWallet"]) {
+            if (username && this.walletService.wallet instanceof _wallet_wallet__WEBPACK_IMPORTED_MODULE_4__["TorusWallet"]) {
                 this.walletService.wallet.name = '@' + username;
             }
         });
     }
-    findContracts(pkh, recursiveScan = false, address = pkh) {
+    findContracts(pkh) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
-            const addresses = yield this.conseilService.getContractAddresses(address);
+            const addresses = yield this.indexerService.getContractAddresses(pkh);
             for (const KT of addresses) {
                 console.log('Found KT: ' + KT);
                 this.walletService.addOriginatedAccount(KT, pkh);
             }
             this.walletService.storeWallet();
-            if (recursiveScan && addresses.length) {
-                for (const KT of addresses) {
-                    yield this.findContracts(pkh, true, KT);
-                }
-            }
         });
     }
 }
-ImportService.ɵfac = function ImportService_Factory(t) { return new (t || ImportService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__["WalletService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_coordinator_coordinator_service__WEBPACK_IMPORTED_MODULE_3__["CoordinatorService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_conseil_conseil_service__WEBPACK_IMPORTED_MODULE_4__["ConseilService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_encryption_encryption_service__WEBPACK_IMPORTED_MODULE_7__["EncryptionService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_torus_torus_service__WEBPACK_IMPORTED_MODULE_8__["TorusService"])); };
+ImportService.ɵfac = function ImportService_Factory(t) { return new (t || ImportService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__["WalletService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_coordinator_coordinator_service__WEBPACK_IMPORTED_MODULE_3__["CoordinatorService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_indexer_indexer_service__WEBPACK_IMPORTED_MODULE_8__["IndexerService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_encryption_encryption_service__WEBPACK_IMPORTED_MODULE_6__["EncryptionService"]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_torus_torus_service__WEBPACK_IMPORTED_MODULE_7__["TorusService"])); };
 ImportService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({ token: ImportService, factory: ImportService.ɵfac });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](ImportService, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"]
-    }], function () { return [{ type: _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__["WalletService"] }, { type: _coordinator_coordinator_service__WEBPACK_IMPORTED_MODULE_3__["CoordinatorService"] }, { type: _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_4__["ConseilService"] }, { type: _encryption_encryption_service__WEBPACK_IMPORTED_MODULE_7__["EncryptionService"] }, { type: _torus_torus_service__WEBPACK_IMPORTED_MODULE_8__["TorusService"] }]; }, null); })();
+    }], function () { return [{ type: _wallet_wallet_service__WEBPACK_IMPORTED_MODULE_2__["WalletService"] }, { type: _coordinator_coordinator_service__WEBPACK_IMPORTED_MODULE_3__["CoordinatorService"] }, { type: _indexer_indexer_service__WEBPACK_IMPORTED_MODULE_8__["IndexerService"] }, { type: _encryption_encryption_service__WEBPACK_IMPORTED_MODULE_6__["EncryptionService"] }, { type: _torus_torus_service__WEBPACK_IMPORTED_MODULE_7__["TorusService"] }]; }, null); })();
+
+
+/***/ }),
+
+/***/ "./src/app/services/indexer/conseil/conseil.service.ts":
+/*!*************************************************************!*\
+  !*** ./src/app/services/indexer/conseil/conseil.service.ts ***!
+  \*************************************************************/
+/*! exports provided: ConseilService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConseilService", function() { return ConseilService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../constants */ "./src/app/constants.ts");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
+/* harmony import */ var conseiljs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! conseiljs */ "./node_modules/conseiljs/dist/index-web.js");
+/* harmony import */ var conseiljs__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(conseiljs__WEBPACK_IMPORTED_MODULE_5__);
+
+
+
+
+
+
+
+class ConseilService {
+    constructor() {
+        this.CONSTANTS = new _constants__WEBPACK_IMPORTED_MODULE_2__["Constants"]();
+        this.conseilServer = this.CONSTANTS.NET.CSI;
+        this.network = this.CONSTANTS.NET.NETWORK;
+        this.platform = 'tezos';
+    }
+    getContractAddresses(pkh, currentAddress = pkh) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            const entity = 'operations';
+            let query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
+            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(query, 'originated_contracts');
+            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'kind', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['origination'], false);
+            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'source', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [currentAddress], false);
+            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'status', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['applied'], false);
+            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addOrdering(query, 'block_level', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilSortDirection"].DESC);
+            query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(query, 100);
+            const results = yield conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, query);
+            let addresses = [];
+            for (const result of results) {
+                addresses.push(result.originated_contracts);
+            }
+            for (const address of addresses) { // Needed to find accounts originated from other originated accounts
+                const childAddresses = yield this.getContractAddresses(pkh, address);
+                addresses = addresses.concat(childAddresses);
+            }
+            return addresses;
+        });
+    }
+    accountInfo(address) {
+        const entity = 'accounts';
+        let query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
+        query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(query, 'block_level');
+        query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(query, 'account_id', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [address], false);
+        query = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(query, 1);
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, query)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((result) => {
+            if (result[0]) {
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(result[0].block_level);
+            }
+            else {
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(0);
+            }
+        })).toPromise();
+    }
+    getOperations(pkh) {
+        const entity = 'operations';
+        let sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
+        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(sendQuery, 'kind', 'block_hash', 'operation_group_hash', 'timestamp', 'originated_contracts', 'source', 'destination', 'amount', 'delegate');
+        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(sendQuery, 'kind', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].IN, ['transaction', 'origination', 'delegation'], false);
+        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(sendQuery, 'source', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [pkh], false);
+        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(sendQuery, 'status', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['applied'], false);
+        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addOrdering(sendQuery, 'block_level', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilSortDirection"].DESC);
+        sendQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(sendQuery, 10);
+        let receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].blankQuery();
+        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addFields(receiveQuery, 'kind', 'block_hash', 'operation_group_hash', 'timestamp', 'source', 'destination', 'amount');
+        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(receiveQuery, 'kind', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].IN, ['transaction', 'origination'], false);
+        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(receiveQuery, 'destination', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, [pkh], false);
+        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addPredicate(receiveQuery, 'status', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilOperator"].EQ, ['applied'], false);
+        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].addOrdering(receiveQuery, 'block_level', conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilSortDirection"].DESC);
+        receiveQuery = conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilQueryBuilder"].setLimit(receiveQuery, 10);
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, sendQuery)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((sendResult) => {
+            sendResult = this.formatTx(sendResult);
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["from"])(conseiljs__WEBPACK_IMPORTED_MODULE_5__["ConseilDataClient"].executeEntityQuery(this.conseilServer, this.platform, this.network, entity, receiveQuery)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["flatMap"])((receiveResult) => {
+                receiveResult = this.formatTx(receiveResult);
+                const transactions = sendResult.concat(receiveResult).sort((a, b) => b['timestamp'] - a['timestamp']);
+                console.log('ADDRESS GET ' + pkh);
+                console.log(transactions);
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(transactions);
+            }));
+        })).toPromise();
+    }
+    formatTx(input) {
+        const output = [];
+        for (const tx of input) {
+            if (tx.kind !== 'transaction' || tx.amount > 0) {
+                let destination = tx.destination;
+                if (tx.kind === 'origination') {
+                    destination = tx.originated_contracts;
+                }
+                else if (tx.kind === 'delegation') {
+                    destination = tx.delegate;
+                }
+                output.push({
+                    type: tx.kind,
+                    block: tx.block_hash,
+                    status: 1,
+                    amount: tx.amount,
+                    source: tx.source,
+                    destination: destination,
+                    hash: tx.operation_group_hash,
+                    timestamp: tx.timestamp
+                });
+            }
+        }
+        return output;
+    }
+}
+ConseilService.ɵfac = function ConseilService_Factory(t) { return new (t || ConseilService)(); };
+ConseilService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({ token: ConseilService, factory: ConseilService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](ConseilService, [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"],
+        args: [{
+                providedIn: 'root'
+            }]
+    }], function () { return []; }, null); })();
+
+
+/***/ }),
+
+/***/ "./src/app/services/indexer/indexer.service.ts":
+/*!*****************************************************!*\
+  !*** ./src/app/services/indexer/indexer.service.ts ***!
+  \*****************************************************/
+/*! exports provided: IndexerService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IndexerService", function() { return IndexerService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
+/* harmony import */ var _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./conseil/conseil.service */ "./src/app/services/indexer/conseil/conseil.service.ts");
+/* harmony import */ var _tzkt_tzkt_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./tzkt/tzkt.service */ "./src/app/services/indexer/tzkt/tzkt.service.ts");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../constants */ "./src/app/constants.ts");
+
+
+
+
+
+
+class IndexerService {
+    constructor(injector) {
+        this.injector = injector;
+        const constants = new _constants__WEBPACK_IMPORTED_MODULE_4__["Constants"]();
+        this.selectedIndexerService = this.injector.get(constants.NET.CSI ? _conseil_conseil_service__WEBPACK_IMPORTED_MODULE_2__["ConseilService"] : _tzkt_tzkt_service__WEBPACK_IMPORTED_MODULE_3__["TzktService"]);
+    }
+    getContractAddresses(address) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            return this.selectedIndexerService.getContractAddresses(address);
+        });
+    }
+    accountInfo(address) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            return this.selectedIndexerService.accountInfo(address);
+        });
+    }
+    getOperations(address) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            return this.selectedIndexerService.getOperations(address);
+        });
+    }
+}
+IndexerService.ɵfac = function IndexerService_Factory(t) { return new (t || IndexerService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"])); };
+IndexerService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({ token: IndexerService, factory: IndexerService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](IndexerService, [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"],
+        args: [{
+                providedIn: 'root'
+            }]
+    }], function () { return [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"] }]; }, null); })();
+
+
+/***/ }),
+
+/***/ "./src/app/services/indexer/tzkt/tzkt.service.ts":
+/*!*******************************************************!*\
+  !*** ./src/app/services/indexer/tzkt/tzkt.service.ts ***!
+  \*******************************************************/
+/*! exports provided: TzktService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TzktService", function() { return TzktService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../constants */ "./src/app/constants.ts");
+
+
+
+
+class TzktService {
+    constructor() {
+        this.network = '';
+        this.CONSTANTS = new _constants__WEBPACK_IMPORTED_MODULE_2__["Constants"]();
+        this.network = this.CONSTANTS.NET.network !== 'mainnet' ? '.' + this.CONSTANTS.NET.NETWORK.slice(0, -3) : '';
+    }
+    getContractAddresses(pkh) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            return fetch(`https://api${this.network}.tzkt.io/v1/operations/originations?contractManager=${pkh}`)
+                .then(response => response.json())
+                .then(data => data.map((op) => {
+                return op.originatedContract.kind === 'delegator_contract' ? op.originatedContract.address : '';
+            }).filter((address) => address.length));
+        });
+    }
+    accountInfo(address) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            return fetch(`https://api${this.network}.tzkt.io/v1/accounts/${address}`)
+                .then(response => response.json())
+                .then(data => {
+                if (data.lastActivity) {
+                    return data.lastActivity;
+                }
+                else {
+                    return 0;
+                }
+            });
+        });
+    }
+    getOperations(address) {
+        return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function* () {
+            const ops = yield fetch(`https://api${this.network}.tzkt.io/v1/accounts/${address}/operations?limit=10&type=delegation,origination,transaction`)
+                .then(response => response.json())
+                .then(data => data.map(op => {
+                if (!op.hasInternals) {
+                    let destination = '';
+                    let amount = '0';
+                    switch (op.type) {
+                        case 'transaction':
+                            destination = op.target.address;
+                            amount = op.amount.toString();
+                            break;
+                        case 'delegation':
+                            destination = op.newDelegate ? op.newDelegate.address : '';
+                            amount = '0';
+                            break;
+                        case 'origination':
+                            destination = op.originatedContract.address;
+                            if (op.contractBalance) {
+                                amount = op.contractBalance.toString();
+                            }
+                            break;
+                        default:
+                            console.log(`Ignoring kind ${op.type}`);
+                    }
+                    return {
+                        type: op.type,
+                        block: op.block,
+                        status: 1,
+                        amount,
+                        source: op.sender.address,
+                        destination,
+                        hash: op.hash,
+                        timestamp: (new Date(op.timestamp)).getTime()
+                    };
+                }
+            }).filter(obj => obj));
+            return ops;
+        });
+    }
+}
+TzktService.ɵfac = function TzktService_Factory(t) { return new (t || TzktService)(); };
+TzktService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({ token: TzktService, factory: TzktService.ɵfac, providedIn: 'root' });
+/*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵsetClassMetadata"](TzktService, [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"],
+        args: [{
+                providedIn: 'root'
+            }]
+    }], function () { return []; }, null); })();
 
 
 /***/ }),
@@ -10323,7 +10486,7 @@ class OperationService {
                             source: keys.pkh,
                             fee: '0',
                             counter: (counter).toString(),
-                            gas_limit: '10000',
+                            gas_limit: '1000',
                             storage_limit: '0',
                             public_key: keys.pk
                         };
@@ -10365,7 +10528,7 @@ class OperationService {
                 source: pkh,
                 fee: '0',
                 counter: (++counter).toString(),
-                gas_limit: '10000',
+                gas_limit: '1000',
                 storage_limit: '0',
                 public_key: pk
             });
@@ -10441,7 +10604,7 @@ class OperationService {
                             source: from,
                             fee: this.microTez.times(fee).toString(),
                             counter: (++counter).toString(),
-                            gas_limit: '10000',
+                            gas_limit: '1000',
                             storage_limit: '0',
                         };
                         if (to !== '') {
@@ -10474,7 +10637,7 @@ class OperationService {
                             source: keys.pkh,
                             fee: '0',
                             counter: (counter).toString(),
-                            gas_limit: '10000',
+                            gas_limit: '1000',
                             storage_limit: '0',
                             public_key: keys.pk
                         };
@@ -11708,7 +11871,7 @@ class TorusService {
                     jwtParams
                 });
                 const keyPair = this.operationService.spPrivKeyToKeyPair(loginDetails.privateKey);
-                // console.log('Torus details', { keyPair, userInfo: loginDetails.userInfo });
+                console.log('DirectAuth KeyPair', keyPair);
                 return { keyPair, userInfo: loginDetails.userInfo };
             }
             catch (e) {
