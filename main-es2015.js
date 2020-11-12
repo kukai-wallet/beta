@@ -2502,7 +2502,7 @@ class DelegateComponent {
         this.recommendedFee = 0.0004;
         this.revealFee = 0;
         this.pkhFee = 0.0004;
-        this.ktFee = 0.00065;
+        this.ktFee = 0.0008;
         this.CONSTANTS = new _constants__WEBPACK_IMPORTED_MODULE_9__["Constants"]();
         this.formInvalid = '';
         this.ledgerError = '';
@@ -10616,7 +10616,7 @@ class OperationService {
                             source: keys.pkh,
                             fee: this.microTez.times(fee).toString(),
                             counter: (++counter).toString(),
-                            gas_limit: '26283',
+                            gas_limit: '4380',
                             storage_limit: '0',
                             amount: '0',
                             destination: from,
