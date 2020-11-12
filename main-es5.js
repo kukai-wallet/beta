@@ -5357,7 +5357,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           console.log('check reveal ' + this.activeAccount.pkh);
           this.operationService.isRevealed(this.activeAccount.pkh).subscribe(function (revealed) {
             if (!revealed) {
-              _this6.revealFee = 0.0004;
+              _this6.revealFee = 0.0002;
             } else {
               _this6.revealFee = 0;
             }

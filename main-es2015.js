@@ -2718,7 +2718,7 @@ class DelegateComponent {
         this.operationService.isRevealed(this.activeAccount.pkh)
             .subscribe((revealed) => {
             if (!revealed) {
-                this.revealFee = 0.0004;
+                this.revealFee = 0.0002;
             }
             else {
                 this.revealFee = 0;
